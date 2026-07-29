@@ -25,6 +25,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state store. */
       @path agent_name: string;
+
       ...CreateStateStoreRequest;
     },
     ResourceCreatedResponse<StateStore>
@@ -43,6 +44,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state stores. */
       @path agent_name: string;
+
       ...ListStateStoresRequest;
     },
     AgentsPagedResult<StateStore>
@@ -60,6 +62,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state store. */
       @path agent_name: string;
+
       ...GetStateStoreRequest;
     },
     StateStore
@@ -77,6 +80,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state store. */
       @path agent_name: string;
+
       ...UpdateStateStoreRequest;
     },
     StateStore
@@ -94,6 +98,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state store. */
       @path agent_name: string;
+
       ...DeleteStateStoreRequest;
     },
     DeletedStateStore
@@ -111,6 +116,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state store. */
       @path agent_name: string;
+
       ...CreateItemRequest;
     },
     CreateStateStoreItemResponse
@@ -129,6 +135,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state store. */
       @path agent_name: string;
+
       ...ListItemKeysRequest;
     },
     AgentsPagedResult<StateStoreItemKey>
@@ -146,6 +153,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state store. */
       @path agent_name: string;
+
       ...PutItemRequest;
     },
     PutStateStoreItemResponse,
@@ -164,6 +172,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state store. */
       @path agent_name: string;
+
       ...GetItemRequest;
     },
     GetStateStoreItemResponse
@@ -181,6 +190,7 @@ interface StateStores {
     {
       /** The name of the agent whose endpoint owns the state store. */
       @path agent_name: string;
+
       ...DeleteItemRequest;
     },
     DeletedStateStoreItem,
