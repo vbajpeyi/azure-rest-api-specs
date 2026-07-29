@@ -6,6 +6,9 @@
   },
   "tags": [
     {
+      "name": "AgentServer Task Storage"
+    },
+    {
       "name": "EvaluationSuiteGenerationJobs"
     },
     {
@@ -18823,6 +18826,633 @@
         }
       }
     },
+    "/tasks": {
+      "post": {
+        "operationId": "createAgentServerTask",
+        "summary": "Create a task",
+        "description": "Creates a durable task record.",
+        "parameters": [
+          {
+            "name": "Foundry-Features",
+            "in": "header",
+            "required": true,
+            "description": "A feature flag opt-in required when using preview operations or modifying persisted preview resources.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Routines=V1Preview"
+              ]
+            }
+          },
+          {
+            "name": "lease_owner",
+            "in": "query",
+            "required": false,
+            "description": "Stable lease owner. Must be supplied together with `lease_instance_id` and\n`lease_duration_seconds`. Lease parameters are query parameters, never body fields.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "lease_instance_id",
+            "in": "query",
+            "required": false,
+            "description": "Ephemeral worker instance id. Must be supplied together with `lease_owner`\nand `lease_duration_seconds`.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "lease_duration_seconds",
+            "in": "query",
+            "required": false,
+            "description": "Lease duration in seconds. `0` force-expires the current lease; otherwise\nvalues are bounded by the task-storage service.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "explode": false
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "description": "The API version to use for this operation.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "The request has succeeded and a new resource has been created as a result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentServerTaskRecord"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AgentServer Task Storage"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentServerTaskCreateRequest"
+              }
+            }
+          },
+          "description": "Task creation body."
+        },
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence",
+          "required_previews": [
+            "Routines=V1Preview"
+          ]
+        }
+      },
+      "get": {
+        "operationId": "listAgentServerTasks",
+        "summary": "List tasks",
+        "description": "Lists durable task records that match the supplied filters.",
+        "parameters": [
+          {
+            "name": "Foundry-Features",
+            "in": "header",
+            "required": true,
+            "description": "A feature flag opt-in required when using preview operations or modifying persisted preview resources.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Routines=V1Preview"
+              ]
+            }
+          },
+          {
+            "name": "agent_name",
+            "in": "query",
+            "required": false,
+            "description": "Filter by agent name.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "session_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter by session id.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filter by task status.",
+            "schema": {
+              "$ref": "#/components/schemas/AgentServerTaskStatus"
+            },
+            "explode": false
+          },
+          {
+            "name": "has_error",
+            "in": "query",
+            "required": false,
+            "description": "Filter by whether the task has a recorded error.",
+            "schema": {
+              "type": "boolean"
+            },
+            "explode": false
+          },
+          {
+            "name": "lease_expired",
+            "in": "query",
+            "required": false,
+            "description": "Filter by whether the current lease is expired.",
+            "schema": {
+              "type": "boolean"
+            },
+            "explode": false
+          },
+          {
+            "name": "lease_owner",
+            "in": "query",
+            "required": false,
+            "description": "Filter by lease owner.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "required": false,
+            "description": "Tag equality filters in `key:value` form. Repeat for AND filtering.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "explode": false
+          },
+          {
+            "name": "source_type",
+            "in": "query",
+            "required": false,
+            "description": "Filter by source type, for example `agentserver.task`.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Cursor for the next page.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of records to return. Default 20, maximum 100.",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            },
+            "explode": false
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "description": "Sort order.",
+            "schema": {
+              "$ref": "#/components/schemas/AgentServerTaskListOrder",
+              "default": "desc"
+            },
+            "explode": false
+          },
+          {
+            "name": "omit_attachment_values",
+            "in": "query",
+            "required": false,
+            "description": "When true, omit attachment values from returned task records.",
+            "schema": {
+              "type": "boolean"
+            },
+            "explode": false
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "description": "The API version to use for this operation.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentServerTaskListResponse"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AgentServer Task Storage"
+        ],
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence",
+          "required_previews": [
+            "Routines=V1Preview"
+          ]
+        }
+      }
+    },
+    "/tasks/{task_id}": {
+      "get": {
+        "operationId": "getAgentServerTask",
+        "summary": "Get a task",
+        "description": "Retrieves a durable task record by id.",
+        "parameters": [
+          {
+            "name": "Foundry-Features",
+            "in": "header",
+            "required": true,
+            "description": "A feature flag opt-in required when using preview operations or modifying persisted preview resources.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Routines=V1Preview"
+              ]
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "description": "The task id.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "description": "The API version to use for this operation.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentServerTaskRecord"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AgentServer Task Storage"
+        ],
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence",
+          "required_previews": [
+            "Routines=V1Preview"
+          ]
+        }
+      },
+      "patch": {
+        "operationId": "patchAgentServerTask",
+        "summary": "Patch a task",
+        "description": "Patches a durable task record, including status, payload, tags, attachments, and lease operations.",
+        "parameters": [
+          {
+            "name": "Foundry-Features",
+            "in": "header",
+            "required": true,
+            "description": "A feature flag opt-in required when using preview operations or modifying persisted preview resources.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Routines=V1Preview"
+              ]
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "description": "The task id.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lease_owner",
+            "in": "query",
+            "required": false,
+            "description": "Stable lease owner. Must be supplied together with `lease_instance_id` and\n`lease_duration_seconds`. Lease parameters are query parameters, never body fields.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "lease_instance_id",
+            "in": "query",
+            "required": false,
+            "description": "Ephemeral worker instance id. Must be supplied together with `lease_owner`\nand `lease_duration_seconds`.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          },
+          {
+            "name": "lease_duration_seconds",
+            "in": "query",
+            "required": false,
+            "description": "Lease duration in seconds. `0` force-expires the current lease; otherwise\nvalues are bounded by the task-storage service.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "explode": false
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "description": "Optimistic-concurrency precondition for patch/delete operations.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "description": "The API version to use for this operation.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentServerTaskRecord"
+                }
+              }
+            }
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AgentServer Task Storage"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentServerTaskPatchRequest"
+              }
+            }
+          },
+          "description": "Task patch body."
+        },
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence",
+          "required_previews": [
+            "Routines=V1Preview"
+          ]
+        }
+      },
+      "delete": {
+        "operationId": "deleteAgentServerTask",
+        "summary": "Delete a task",
+        "description": "Deletes a durable task record.",
+        "parameters": [
+          {
+            "name": "Foundry-Features",
+            "in": "header",
+            "required": true,
+            "description": "A feature flag opt-in required when using preview operations or modifying persisted preview resources.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Routines=V1Preview"
+              ]
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "description": "The task id.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "description": "Optimistic-concurrency precondition for patch/delete operations.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "required": false,
+            "description": "Force deletion of a non-terminal task and release any active lease. Defaults to false.",
+            "schema": {
+              "type": "boolean"
+            },
+            "explode": false
+          },
+          {
+            "name": "cascade",
+            "in": "query",
+            "required": false,
+            "description": "Request deletion of dependent tasks when supported by the backend. Defaults to false.",
+            "schema": {
+              "type": "boolean"
+            },
+            "explode": false
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "description": "The API version to use for this operation.",
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful."
+          },
+          "4XX": {
+            "description": "Client error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AgentServer Task Storage"
+        ],
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence",
+          "required_previews": [
+            "Routines=V1Preview"
+          ]
+        }
+      }
+    },
     "/toolboxes": {
       "get": {
         "operationId": "listToolboxes",
@@ -20912,6 +21542,693 @@
             "type": "string",
             "description": "The version identifier of the agent."
           }
+        }
+      },
+      "AgentServerResponseAgentReferencePayload": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/AgentReference"
+          },
+          {
+            "type": "object",
+            "unevaluatedProperties": {}
+          }
+        ],
+        "description": "Agent reference payload persisted in a response recovery record.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerResponseRecoveryDisposition": {
+        "type": "string",
+        "enum": [
+          "re-invoke",
+          "mark-failed"
+        ],
+        "description": "Recovery disposition for a persisted response task input.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerResponseRecoveryPayload": {
+        "type": "object",
+        "required": [
+          "response_id",
+          "request",
+          "client_headers",
+          "query_parameters"
+        ],
+        "properties": {
+          "response_id": {
+            "type": "string",
+            "description": "Stable response identifier to recover or mark failed."
+          },
+          "disposition": {
+            "$ref": "#/components/schemas/AgentServerResponseRecoveryDisposition",
+            "description": "Recovery disposition. Defaults to `re-invoke` when absent in older records.",
+            "default": "re-invoke"
+          },
+          "request": {
+            "$ref": "#/components/schemas/OpenAI.CreateResponse",
+            "description": "Original CreateResponse request. Re-derived response fields use this as the source of truth."
+          },
+          "agent_reference": {
+            "$ref": "#/components/schemas/AgentServerResponseAgentReferencePayload",
+            "description": "Normalized agent reference captured at response creation. Empty object means absent."
+          },
+          "agent_session_id": {
+            "type": "string",
+            "description": "Agent session id captured at response creation, when available."
+          },
+          "user_id_key": {
+            "type": "string",
+            "description": "Platform user identity partition key captured at response creation, when available."
+          },
+          "call_id": {
+            "type": "string",
+            "description": "Platform call id captured at response creation, when available."
+          },
+          "client_headers": {
+            "type": "object",
+            "unevaluatedProperties": {
+              "type": "string"
+            },
+            "description": "Forwarded client request headers captured at response creation."
+          },
+          "query_parameters": {
+            "type": "object",
+            "unevaluatedProperties": {
+              "type": "string"
+            },
+            "description": "Request query parameters captured at response creation."
+          }
+        },
+        "description": "Persisted response recovery payload shared by Python `ResilientResponseInput`\nand .NET `ResponseRecoveryPayload`.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerResponseTaskInput": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/AgentServerResponseRecoveryPayload"
+          },
+          {
+            "$ref": "#/components/schemas/AgentServerTaskAttachmentRefEnvelope"
+          }
+        ],
+        "description": "Responses resilient task input can be inline recovery data or an attachment reference.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerResponseTaskPayload": {
+        "type": "object",
+        "required": [
+          "input"
+        ],
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/AgentServerResponseTaskInput",
+            "description": "Resilient response input persisted under the task payload's `input` slot."
+          },
+          "metadata": {
+            "type": "object",
+            "unevaluatedProperties": {},
+            "description": "Default metadata namespace for durable checkpoints."
+          },
+          "last_input_id": {
+            "type": "string",
+            "description": "Last input id processed by this task chain."
+          },
+          "turn_started_at": {
+            "type": "string",
+            "description": "ISO 8601 UTC timestamp when the current turn started."
+          },
+          "retry_attempt": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int32"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Current retry attempt for the active turn."
+          },
+          "steering": {
+            "type": "object",
+            "unevaluatedProperties": {},
+            "description": "Durable steering queue state."
+          },
+          "schema_version": {
+            "type": "string",
+            "description": "Task document schema version."
+          }
+        },
+        "unevaluatedProperties": {},
+        "description": "Payload shape used by resilient Responses tasks.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskAttachmentRef": {
+        "type": "object",
+        "required": [
+          "key",
+          "hash"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Attachment key in the companion attachment map."
+          },
+          "hash": {
+            "type": "string",
+            "description": "Content hash in `sha256:<64 lowercase hex>` format."
+          }
+        },
+        "description": "Reference to a task attachment that replaced an oversized inline JSON payload slot.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskAttachmentRefEnvelope": {
+        "type": "object",
+        "required": [
+          "__attachment_ref__"
+        ],
+        "properties": {
+          "__attachment_ref__": {
+            "$ref": "#/components/schemas/AgentServerTaskAttachmentRef",
+            "description": "Attachment reference marker and payload."
+          }
+        },
+        "description": "Single-key attachment reference envelope persisted in payload slots.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskCreateRequest": {
+        "type": "object",
+        "required": [
+          "agent_name",
+          "session_id",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Optional caller-supplied task identifier. If omitted, the provider generates one."
+          },
+          "agent_name": {
+            "type": "string",
+            "description": "Agent scope that owns this task."
+          },
+          "session_id": {
+            "type": "string",
+            "description": "Session scope that owns this task."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "Human-readable title."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1024,
+            "description": "Optional human-readable description."
+          },
+          "status": {
+            "$ref": "#/components/schemas/AgentServerTaskStatus",
+            "description": "Initial task status. Defaults to `pending`.",
+            "default": "pending"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/AgentServerTaskPayloadValue",
+            "description": "Initial task payload."
+          },
+          "depends_on_task_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Same-scope task dependencies. Immutable after creation."
+          },
+          "tags": {
+            "type": "object",
+            "unevaluatedProperties": {
+              "type": "string"
+            },
+            "description": "Initial string tags."
+          },
+          "source": {
+            "$ref": "#/components/schemas/AgentServerTaskSource",
+            "description": "Source/provenance metadata used for recovery routing."
+          },
+          "attachments": {
+            "type": "object",
+            "unevaluatedProperties": {},
+            "description": "Initial promoted attachment values keyed by attachment key."
+          }
+        },
+        "description": "Request body for creating an AgentServer durable task record.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskError": {
+        "type": "object",
+        "required": [
+          "type",
+          "message"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Error type discriminator, such as `timeout` or `retries_exhausted`."
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message."
+          },
+          "code": {
+            "type": "string",
+            "description": "Optional machine-readable error code. Defaults to `error` when omitted by the caller.",
+            "default": "error"
+          }
+        },
+        "unevaluatedProperties": {},
+        "description": "Structured error persisted on a task record.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskLease": {
+        "type": "object",
+        "required": [
+          "owner",
+          "instance_id",
+          "generation",
+          "expires_at",
+          "expiry_count"
+        ],
+        "properties": {
+          "owner": {
+            "type": "string",
+            "description": "Stable lease owner, typically scoped to the agent and session."
+          },
+          "instance_id": {
+            "type": "string",
+            "description": "Ephemeral worker instance identifier."
+          },
+          "generation": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Fencing generation. Increments whenever a different instance re-acquires the lease.",
+            "default": 0
+          },
+          "expires_at": {
+            "type": "string",
+            "description": "ISO 8601 UTC instant after which the lease is expired."
+          },
+          "expiry_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of times ownership changed via expiry.",
+            "default": 0
+          },
+          "heartbeat_at": {
+            "type": "string",
+            "description": "ISO 8601 UTC instant of the most recent provider-stamped lease heartbeat.\nImplementations may omit this field until heartbeat telemetry is enabled."
+          }
+        },
+        "description": "Lease details on an AgentServer durable task record.\nThe lease is the optimistic ownership/fencing token for a single worker instance.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskListOrder": {
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc"
+        ]
+      },
+      "AgentServerTaskListResponse": {
+        "type": "object",
+        "required": [
+          "object",
+          "data",
+          "has_more"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "list"
+            ],
+            "description": "Object discriminator. Always `list`."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentServerTaskRecord"
+            },
+            "description": "Page of matching task records."
+          },
+          "first_id": {
+            "type": "string",
+            "description": "First task id represented in this page."
+          },
+          "has_more": {
+            "type": "boolean",
+            "description": "Whether more records are available."
+          },
+          "last_id": {
+            "type": "string",
+            "description": "Cursor to pass as `after` for the next page when `has_more` is true."
+          }
+        },
+        "description": "Cursor-paged list response for AgentServer durable task records.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskPatchRequest": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/AgentServerTaskStatus",
+            "description": "New status, if transitioning task state."
+          },
+          "payload": {
+            "$ref": "#/components/schemas/AgentServerTaskPayloadValue",
+            "description": "Payload patch. Object values are shallow-merged by the provider; non-object\nvalues replace the full payload."
+          },
+          "tags": {
+            "type": "object",
+            "unevaluatedProperties": {},
+            "description": "Tag patch. Null values delete keys."
+          },
+          "attachments": {
+            "anyOf": [
+              {
+                "type": "object",
+                "unevaluatedProperties": {}
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Attachment patch. Null values delete keys; top-level null clears all attachments."
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentServerTaskError"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Structured terminal error details."
+          },
+          "suspension_reason": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "Suspension reason when transitioning to `suspended`."
+          }
+        },
+        "description": "Request body for patching an AgentServer durable task record.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskPayloadValue": {
+        "anyOf": [
+          {},
+          {
+            "$ref": "#/components/schemas/AgentServerResponseTaskPayload"
+          }
+        ],
+        "description": "Task payload value. Most callers use arbitrary JSON; Responses resilience has a documented input shape.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskRecord": {
+        "type": "object",
+        "required": [
+          "object",
+          "id",
+          "agent_name",
+          "session_id",
+          "status",
+          "title",
+          "description",
+          "lease",
+          "payload",
+          "depends_on_task_ids",
+          "tags",
+          "source",
+          "attachments",
+          "error",
+          "suspension_reason",
+          "created_at",
+          "updated_at",
+          "started_at",
+          "completed_at",
+          "etag"
+        ],
+        "properties": {
+          "object": {
+            "type": "string",
+            "enum": [
+              "task"
+            ],
+            "description": "Envelope discriminator. Always `task`."
+          },
+          "id": {
+            "type": "string",
+            "description": "Stable task identifier."
+          },
+          "agent_name": {
+            "type": "string",
+            "description": "Agent scope that owns this task."
+          },
+          "session_id": {
+            "type": "string",
+            "description": "Session scope that owns this task."
+          },
+          "status": {
+            "$ref": "#/components/schemas/AgentServerTaskStatus",
+            "description": "Current task status."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "Human-readable title."
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "maxLength": 1024,
+            "description": "Optional human-readable description."
+          },
+          "lease": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentServerTaskLease"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Active lease details, or null when no lease is held."
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentServerTaskPayloadValue"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Task payload. Contains framework-reserved keys such as `input`, `metadata`,\n`last_input_id`, `turn_started_at`, `retry_attempt`, `steering`, and\n`schema_version`, plus feature-specific JSON data."
+          },
+          "depends_on_task_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Same-scope task dependencies. Pending tasks are ready when every dependency is completed."
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "type": "object",
+                "unevaluatedProperties": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "String tags associated with this task."
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentServerTaskSource"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source/provenance metadata used for recovery routing."
+          },
+          "attachments": {
+            "anyOf": [
+              {
+                "type": "object",
+                "unevaluatedProperties": {}
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Promoted attachment values keyed by attachment key."
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentServerTaskError"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Structured terminal error details."
+          },
+          "suspension_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "maxLength": 256,
+            "description": "Reason the task was suspended."
+          },
+          "created_at": {
+            "type": "string",
+            "description": "ISO 8601 UTC creation timestamp."
+          },
+          "updated_at": {
+            "type": "string",
+            "description": "ISO 8601 UTC last-update timestamp."
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO 8601 UTC timestamp of the first transition to `in_progress`, or null."
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "ISO 8601 UTC completion timestamp, or null."
+          },
+          "etag": {
+            "type": "string",
+            "description": "Optimistic-concurrency token."
+          }
+        },
+        "description": "Persisted AgentServer durable task record shared by Python and .NET SDK implementations.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskSource": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Source discriminator. For SDK-owned resilient tasks this is typically `agentserver.task`."
+          },
+          "name": {
+            "type": "string",
+            "description": "Registered task name used by SDK-owned tasks to route a recovered task to its handler."
+          },
+          "server_version": {
+            "type": "string",
+            "description": "SDK/runtime version string that created the task record."
+          },
+          "hosting_environment": {
+            "type": "string",
+            "description": "Foundry hosting environment value captured when the task was created, or empty for local execution."
+          }
+        },
+        "unevaluatedProperties": {},
+        "description": "Provenance and recovery-routing metadata for an AgentServer durable task record.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
+        }
+      },
+      "AgentServerTaskStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "in_progress",
+          "suspended",
+          "completed"
+        ],
+        "description": "Status values persisted on an AgentServer durable task record.",
+        "x-ms-foundry-meta": {
+          "contract": "agentserver-persistence",
+          "usage": "cross-language-sdk-persistence"
         }
       },
       "AgentSessionResource": {
@@ -35222,6 +36539,296 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "OpenAI.CreateResponse": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.Metadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "top_logprobs": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "temperature": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.numeric"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": 1
+          },
+          "top_p": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.numeric"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": 1
+          },
+          "user": {
+            "type": "string",
+            "description": "This field is being replaced by `safety_identifier` and `prompt_cache_key`. Use `prompt_cache_key` instead to maintain caching optimizations.\n  A stable identifier for your end-users.\n  Used to boost cache hit rates by better bucketing similar requests and  to help OpenAI detect and prevent abuse. [Learn more](/docs/guides/safety-best-practices#safety-identifiers).",
+            "deprecated": true
+          },
+          "safety_identifier": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "A stable identifier used to help detect users of your application that may be violating OpenAI's usage policies.\n  The IDs should be a string that uniquely identifies each user, with a maximum length of 64 characters. We recommend hashing their username or email address, in order to avoid sending us any identifying information. [Learn more](/docs/guides/safety-best-practices#safety-identifiers)."
+          },
+          "prompt_cache_key": {
+            "type": "string",
+            "description": "Used by OpenAI to cache responses for similar requests to optimize your cache hit rates. Replaces the `user` field. [Learn more](/docs/guides/prompt-caching)."
+          },
+          "service_tier": {
+            "$ref": "#/components/schemas/OpenAI.ServiceTier"
+          },
+          "prompt_cache_retention": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "in_memory",
+                  "24h"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "deprecated": true
+          },
+          "prompt_cache_options": {
+            "$ref": "#/components/schemas/OpenAI.PromptCacheOptionsParam"
+          },
+          "previous_response_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "model": {
+            "type": "string",
+            "description": "The model deployment to use for the creation of this response."
+          },
+          "background": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_tool_calls": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "text": {
+            "$ref": "#/components/schemas/OpenAI.ResponseTextParam"
+          },
+          "tools": {
+            "$ref": "#/components/schemas/OpenAI.ToolsArray"
+          },
+          "tool_choice": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.ToolChoiceOptions"
+              },
+              {
+                "$ref": "#/components/schemas/OpenAI.ToolChoiceParam"
+              }
+            ]
+          },
+          "prompt": {
+            "$ref": "#/components/schemas/OpenAI.Prompt"
+          },
+          "truncation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "disabled"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "deprecated": true,
+            "default": "disabled"
+          },
+          "reasoning": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.Reasoning"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input": {
+            "$ref": "#/components/schemas/OpenAI.InputParam"
+          },
+          "include": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OpenAI.IncludeEnum"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parallel_tool_calls": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": true
+          },
+          "store": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": true
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "moderation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.ModerationParam"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stream": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stream_options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.ResponseStreamOptions"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "conversation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.ConversationParam"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "context_management": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OpenAI.ContextManagementParam"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Context management configuration for this request."
+          },
+          "max_output_tokens": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpenAI.integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "agent": {
+            "$ref": "#/components/schemas/AgentReference",
+            "description": "(Deprecated) Use agent_reference instead.\nThe agent to use for generating the response."
+          },
+          "agent_session_id": {
+            "type": "string",
+            "description": "Optional session identifier for sandbox affinity. Currently only relevant for hosted agents.\nWhen provided, the request is routed to the same sandbox. When omitted, auto-derived from\nconversation_id/prev_response_id or a new UUID is generated."
+          },
+          "agent_reference": {
+            "$ref": "#/components/schemas/AgentReference",
+            "description": "The agent to use for generating the response."
+          },
+          "structured_inputs": {
+            "type": "object",
+            "unevaluatedProperties": {},
+            "description": "The structured inputs to the response that can participate in prompt template substitution or tool argument bindings."
           }
         }
       },
