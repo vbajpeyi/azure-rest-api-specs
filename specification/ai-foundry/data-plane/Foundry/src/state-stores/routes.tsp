@@ -18,11 +18,15 @@ interface StateStores {
   @summary("Create a state store")
   @operationId("createStateStore")
   @post
-  @route("/storage/state_stores")
+  @route("/agents/{agent_name}/endpoint/state_stores")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   createStateStore is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    CreateStateStoreRequest,
+    {
+      /** The name of the agent whose endpoint owns the state store. */
+      @path agent_name: string;
+      ...CreateStateStoreRequest;
+    },
     ResourceCreatedResponse<StateStore>
   >;
 
@@ -32,11 +36,15 @@ interface StateStores {
   @operationId("listStateStores")
   @get
   @list
-  @route("/storage/state_stores")
+  @route("/agents/{agent_name}/endpoint/state_stores")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   listStateStores is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    ListStateStoresRequest,
+    {
+      /** The name of the agent whose endpoint owns the state stores. */
+      @path agent_name: string;
+      ...ListStateStoresRequest;
+    },
     AgentsPagedResult<StateStore>
   >;
 
@@ -45,11 +53,15 @@ interface StateStores {
   @summary("Get a state store")
   @operationId("getStateStore")
   @get
-  @route("/storage/state_stores/{name}")
+  @route("/agents/{agent_name}/endpoint/state_stores/{name}")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   getStateStore is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    GetStateStoreRequest,
+    {
+      /** The name of the agent whose endpoint owns the state store. */
+      @path agent_name: string;
+      ...GetStateStoreRequest;
+    },
     StateStore
   >;
 
@@ -58,11 +70,15 @@ interface StateStores {
   @summary("Update a state store")
   @operationId("updateStateStore")
   @patch
-  @route("/storage/state_stores/{name}")
+  @route("/agents/{agent_name}/endpoint/state_stores/{name}")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   updateStateStore is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    UpdateStateStoreRequest,
+    {
+      /** The name of the agent whose endpoint owns the state store. */
+      @path agent_name: string;
+      ...UpdateStateStoreRequest;
+    },
     StateStore
   >;
 
@@ -71,11 +87,15 @@ interface StateStores {
   @summary("Delete a state store")
   @operationId("deleteStateStore")
   @delete
-  @route("/storage/state_stores/{name}")
+  @route("/agents/{agent_name}/endpoint/state_stores/{name}")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   deleteStateStore is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    DeleteStateStoreRequest,
+    {
+      /** The name of the agent whose endpoint owns the state store. */
+      @path agent_name: string;
+      ...DeleteStateStoreRequest;
+    },
     DeletedStateStore
   >;
 
@@ -84,11 +104,15 @@ interface StateStores {
   @summary("Create a state-store item")
   @operationId("createStateStoreItem")
   @post
-  @route("/storage/state_stores/{name}/items")
+  @route("/agents/{agent_name}/endpoint/state_stores/{name}/items")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   createStateStoreItem is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    CreateItemRequest,
+    {
+      /** The name of the agent whose endpoint owns the state store. */
+      @path agent_name: string;
+      ...CreateItemRequest;
+    },
     CreateStateStoreItemResponse
   >;
 
@@ -98,11 +122,15 @@ interface StateStores {
   @operationId("listStateStoreItemKeys")
   @get
   @list
-  @route("/storage/state_stores/{name}/items:keys")
+  @route("/agents/{agent_name}/endpoint/state_stores/{name}/items:keys")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   listStateStoreItemKeys is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    ListItemKeysRequest,
+    {
+      /** The name of the agent whose endpoint owns the state store. */
+      @path agent_name: string;
+      ...ListItemKeysRequest;
+    },
     AgentsPagedResult<StateStoreItemKey>
   >;
 
@@ -111,11 +139,15 @@ interface StateStores {
   @summary("Put a state-store item")
   @operationId("putStateStoreItem")
   @put
-  @route("/storage/state_stores/{name}/items/{key}")
+  @route("/agents/{agent_name}/endpoint/state_stores/{name}/items/{key}")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   putStateStoreItem is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    PutItemRequest,
+    {
+      /** The name of the agent whose endpoint owns the state store. */
+      @path agent_name: string;
+      ...PutItemRequest;
+    },
     PutStateStoreItemResponse,
     StateStoreConditionalErrorResponse
   >;
@@ -125,11 +157,15 @@ interface StateStores {
   @summary("Get a state-store item")
   @operationId("getStateStoreItem")
   @get
-  @route("/storage/state_stores/{name}/items/{key}")
+  @route("/agents/{agent_name}/endpoint/state_stores/{name}/items/{key}")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   getStateStoreItem is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    GetItemRequest,
+    {
+      /** The name of the agent whose endpoint owns the state store. */
+      @path agent_name: string;
+      ...GetItemRequest;
+    },
     GetStateStoreItemResponse
   >;
 
@@ -138,11 +174,15 @@ interface StateStores {
   @summary("Delete a state-store item")
   @operationId("deleteStateStoreItem")
   @delete
-  @route("/storage/state_stores/{name}/items/{key}")
+  @route("/agents/{agent_name}/endpoint/state_stores/{name}/items/{key}")
   @extension("x-ms-foundry-meta", StateStoreRequiredPreviews)
   deleteStateStoreItem is FoundryDataPlaneRequiredPreviewOperation<
     FoundryFeaturesOptInKeys.state_stores_v1_preview,
-    DeleteItemRequest,
+    {
+      /** The name of the agent whose endpoint owns the state store. */
+      @path agent_name: string;
+      ...DeleteItemRequest;
+    },
     DeletedStateStoreItem,
     StateStoreConditionalErrorResponse
   >;
